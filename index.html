@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Shopee</title>
+<style>
+  :root {
+    --orange: #ee4d2d;
+    --green: #1ba94c;
+    --red: #e02020;
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #ececec;
+    --text: #222222;
+    --muted: #888888;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 12px;
+  }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 0.5px;
+    margin: 8px 0 16px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    background: #fff;
+  }
+  input[type="text"]:focus {
+    border-color: var(--orange);
+  }
+  .field {
+    margin-bottom: 12px;
+  }
+  .field:last-child { margin-bottom: 0; }
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .error {
+    color: var(--red);
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 6px;
+    display: none;
+  }
+
+  /* Mode tabs */
+  .tabs {
+    display: flex;
+    background: #f0f0f0;
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 14px;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 9px 6px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted);
+    user-select: none;
+  }
+  .tab.active {
+    background: var(--orange);
+    color: #fff;
+  }
+
+  /* Settings collapsible */
+  .settings-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .settings-toggle .arrow {
+    transition: transform 0.2s;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .settings-toggle.open .arrow {
+    transform: rotate(180deg);
+  }
+  .settings-body {
+    display: none;
+    margin-top: 14px;
+  }
+  .settings-body.open {
+    display: block;
+  }
+  .advanced-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+  .advanced-toggle .arrow {
+    transition: transform 0.2s;
+    font-size: 12px;
+  }
+  .advanced-toggle.open .arrow {
+    transform: rotate(180deg);
+  }
+  .advanced-body {
+    display: none;
+    margin-top: 12px;
+  }
+  .advanced-body.open {
+    display: block;
+  }
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    outline: none;
+  }
+
+  /* Result rows */
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  .result-row.sub {
+    padding-left: 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .result-row .label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .result-row .value {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .result-row.clickable {
+    cursor: pointer;
+  }
+  .result-row .arrow-icon {
+    font-size: 10px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .result-row .arrow-icon.open {
+    transform: rotate(180deg);
+  }
+  .bold { font-weight: 700; }
+  .neg { color: var(--text); }
+  .hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 10px 0;
+  }
+  .hr.thick {
+    border-top: 1px solid #ddd;
+    margin: 12px 0;
+  }
+  .total-row {
+    padding: 10px 0 4px;
+  }
+  .total-row .label {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .total-row .value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--orange);
+  }
+  .profit-row {
+    padding: 6px 0 2px;
+  }
+  .profit-row .label {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .profit-row .value {
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .profit-row .value.positive { color: var(--green); }
+  .profit-row .value.negative { color: var(--red); }
+
+  .note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  #resultCard {
+    display: none;
+  }
+
+  .subgroup {
+    display: none;
+  }
+  .subgroup.open {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>KALKULATOR SHOPEE</h1>
+
+  <div class="card">
+    <div class="field">
+      <label for="modal">Harga Modal</label>
+      <input type="text" inputmode="numeric" id="modal" placeholder="Contoh: 26.333">
+    </div>
+    <div class="error" id="modalError">Harga Modal wajib diisi dengan angka yang valid.</div>
+
+    <div class="tabs">
+      <div class="tab active" data-mode="A">Input Harga Jual</div>
+      <div class="tab" data-mode="B">Input % Keuntungan</div>
+    </div>
+
+    <div class="field" id="fieldHargaJual">
+      <label for="hargaJual">Harga Pasang Shopee</label>
+      <input type="text" inputmode="numeric" id="hargaJual" placeholder="Contoh: 22.500">
+    </div>
+
+    <div class="field" id="fieldPersenUntung" style="display:none;">
+      <label for="persenUntung">Target Persentase Keuntungan (dari Modal)</label>
+      <input type="text" inputmode="numeric" id="persenUntung" placeholder="Contoh: 20">
+      <div class="hint">Hasil hitung mundur ini mengasumsikan Diskon Produk & Voucher = 0.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="settings-toggle" id="settingsToggle">
+      <span>Pengaturan Biaya</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="settings-body" id="settingsBody">
+      <div class="field">
+        <label for="persenAdmin">Biaya Administrasi (%)</label>
+        <input type="text" inputmode="decimal" id="persenAdmin" value="8.25">
+      </div>
+      <div class="field">
+        <label for="biayaProses">Biaya Proses Pesanan (Rp)</label>
+        <input type="text" inputmode="numeric" id="biayaProses" value="1.250">
+      </div>
+      <div class="field">
+        <label for="persenOngkir">Admin 4,5% / Biaya Gratis Ongkir XTRA (%)</label>
+        <input type="text" inputmode="decimal" id="persenOngkir" value="4.5">
+      </div>
+      <div class="field">
+        <label for="biayaLayanan">Biaya Layanan Tambahan (Rp)</label>
+        <input type="text" inputmode="numeric" id="biayaLayanan" value="0">
+      </div>
+
+      <div class="advanced-toggle" id="advancedToggle">
+        <span>Pengaturan Advanced</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="advanced-body" id="advancedBody">
+        <div class="field">
+          <label for="ukuranProduk">Ukuran Produk</label>
+          <select id="ukuranProduk">
+            <option value="biasa">Ukuran Biasa (Cap Rp40.000)</option>
+            <option value="khusus">Ukuran Khusus (Cap Rp60.000)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="capOngkir">Batas Maksimal Ongkir XTRA (Cap, Rp)</label>
+          <input type="text" inputmode="numeric" id="capOngkir" value="40.000">
+        </div>
+        <div class="field">
+          <label for="diskonProduk">Diskon Produk - ditanggung Penjual (Rp)</label>
+          <input type="text" inputmode="numeric" id="diskonProduk" value="0">
+        </div>
+        <div class="field">
+          <label for="voucherDiskon">Voucher Diskon - ditanggung Penjual (Rp)</label>
+          <input type="text" inputmode="numeric" id="voucherDiskon" value="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="resultCard">
+    <div class="result-row" id="rowPersenUntung" style="display:none;">
+      <span class="label">% Keuntungan</span>
+      <span class="value" id="valPersenUntung"></span>
+    </div>
+    <div class="result-row">
+      <span class="label" id="labelHargaJual">Harga Jual</span>
+      <span class="value" id="valHargaJual"></span>
+    </div>
+    <div class="result-row" id="rowDiskon" style="display:none;">
+      <span class="label">Diskon Produk (ditanggung Penjual)</span>
+      <span class="value" id="valDiskon"></span>
+    </div>
+    <div class="result-row" id="rowVoucher" style="display:none;">
+      <span class="label">Voucher Diskon (ditanggung Penjual)</span>
+      <span class="value" id="valVoucher"></span>
+    </div>
+    <div class="result-row" id="rowDasar" style="display:none;">
+      <span class="label">Dasar Perhitungan Biaya</span>
+      <span class="value" id="valDasar"></span>
+    </div>
+
+    <hr class="hr">
+
+    <div class="result-row bold clickable" id="rowPlatform">
+      <span class="label">Biaya Platform <span class="arrow-icon" id="platformArrow">▼</span></span>
+      <span class="value" id="valPlatform"></span>
+    </div>
+    <div class="subgroup" id="platformSub">
+      <div class="result-row sub">
+        <span class="label" id="labelAdmin">Biaya Administrasi (8,25%)</span>
+        <span class="value" id="valAdmin"></span>
+      </div>
+      <div class="result-row sub">
+        <span class="label">Biaya Proses Pesanan</span>
+        <span class="value" id="valProses"></span>
+      </div>
+    </div>
+
+    <div class="result-row bold">
+      <span class="label" id="labelOngkir">Admin 4,5% / Biaya Gratis Ongkir XTRA</span>
+      <span class="value" id="valOngkir"></span>
+    </div>
+
+    <div class="result-row">
+      <span class="label">Subtotal Biaya Layanan Tambahan</span>
+      <span class="value" id="valLayanan"></span>
+    </div>
+
+    <hr class="hr thick">
+
+    <div class="result-row total-row">
+      <span class="label">Estimasi Total Penghasilan</span>
+      <span class="value" id="valTotalPenghasilan"></span>
+    </div>
+
+    <hr class="hr thick">
+
+    <div class="result-row">
+      <span class="label">Harga Modal</span>
+      <span class="value" id="valModal"></span>
+    </div>
+    <div class="result-row profit-row">
+      <span class="label">Profit Bersih</span>
+      <span class="value" id="valProfit"></span>
+    </div>
+
+    <div class="note" id="modeNote" style="display:none;">
+      Catatan: hasil hitung mundur Mode B mengasumsikan Diskon Produk & Voucher = 0. Jika Anda mengisi Diskon/Voucher di Pengaturan, angka Harga Jual di atas hanya estimasi tanpa memperhitungkan diskon tersebut.
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Number formatting helpers ----------
+  function parseNumber(str) {
+    if (str === null || str === undefined) return NaN;
+    var cleaned = String(str).replace(/\./g, "").replace(/,/g, ".").trim();
+    if (cleaned === "") return NaN;
+    return Number(cleaned);
+  }
+
+  // For decimal percent fields (e.g. "8.25" or "8,25") — "." is a decimal point here, not a thousands separator
+  function parsePercent(str) {
+    if (str === null || str === undefined) return NaN;
+    var cleaned = String(str).replace(/,/g, ".").trim();
+    if (cleaned === "") return NaN;
+    return Number(cleaned);
+  }
+
+  function formatThousands(numStr) {
+    // numStr: digits only string (no decimals for live-input fields)
+    if (numStr === "") return "";
+    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  function formatRupiah(n) {
+    var rounded = Math.round(n);
+    var sign = rounded < 0 ? "-" : "";
+    var abs = Math.abs(rounded);
+    return sign + "Rp" + abs.toLocaleString("id-ID").replace(/,/g, ".");
+  }
+
+  function formatPlain(n) {
+    var rounded = Math.round(n);
+    var sign = rounded < 0 ? "-" : "";
+    var abs = Math.abs(rounded);
+    return sign + abs.toLocaleString("id-ID").replace(/,/g, ".");
+  }
+
+  // ---------- Live thousand-separator formatting on integer inputs ----------
+  function attachIntegerFormatting(input) {
+    input.addEventListener("input", function () {
+      var cursorFromEnd = input.value.length - input.selectionStart;
+      var digitsOnly = input.value.replace(/[^\d]/g, "");
+      var formatted = formatThousands(digitsOnly);
+      input.value = formatted;
+      var pos = formatted.length - cursorFromEnd;
+      if (pos < 0) pos = 0;
+      input.setSelectionRange(pos, pos);
+      recalculate();
+    });
+  }
+
+  function attachDecimalFormatting(input) {
+    input.addEventListener("input", recalculate);
+  }
+
+  // ---------- Elements ----------
+  var modalInput = document.getElementById("modal");
+  var hargaJualInput = document.getElementById("hargaJual");
+  var persenUntungInput = document.getElementById("persenUntung");
+  var persenAdminInput = document.getElementById("persenAdmin");
+  var biayaProsesInput = document.getElementById("biayaProses");
+  var persenOngkirInput = document.getElementById("persenOngkir");
+  var biayaLayananInput = document.getElementById("biayaLayanan");
+  var ukuranProdukSelect = document.getElementById("ukuranProduk");
+  var capOngkirInput = document.getElementById("capOngkir");
+  var diskonProdukInput = document.getElementById("diskonProduk");
+  var voucherDiskonInput = document.getElementById("voucherDiskon");
+
+  var modalError = document.getElementById("modalError");
+  var resultCard = document.getElementById("resultCard");
+
+  var fieldHargaJual = document.getElementById("fieldHargaJual");
+  var fieldPersenUntung = document.getElementById("fieldPersenUntung");
+
+  var mode = "A";
+
+  attachIntegerFormatting(modalInput);
+  attachIntegerFormatting(hargaJualInput);
+  attachIntegerFormatting(persenUntungInput);
+  attachIntegerFormatting(biayaProsesInput);
+  attachIntegerFormatting(biayaLayananInput);
+  attachIntegerFormatting(capOngkirInput);
+  attachIntegerFormatting(diskonProdukInput);
+  attachIntegerFormatting(voucherDiskonInput);
+  attachDecimalFormatting(persenAdminInput);
+  attachDecimalFormatting(persenOngkirInput);
+
+  // ---------- Mode tabs ----------
+  var tabs = document.querySelectorAll(".tab");
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      tab.classList.add("active");
+      mode = tab.getAttribute("data-mode");
+      if (mode === "A") {
+        fieldHargaJual.style.display = "";
+        fieldPersenUntung.style.display = "none";
+      } else {
+        fieldHargaJual.style.display = "none";
+        fieldPersenUntung.style.display = "";
+      }
+      recalculate();
+    });
+  });
+
+  // ---------- Settings collapse ----------
+  var settingsToggle = document.getElementById("settingsToggle");
+  var settingsBody = document.getElementById("settingsBody");
+  settingsToggle.addEventListener("click", function () {
+    settingsToggle.classList.toggle("open");
+    settingsBody.classList.toggle("open");
+  });
+
+  var advancedToggle = document.getElementById("advancedToggle");
+  var advancedBody = document.getElementById("advancedBody");
+  advancedToggle.addEventListener("click", function () {
+    advancedToggle.classList.toggle("open");
+    advancedBody.classList.toggle("open");
+  });
+
+  // ---------- Ukuran produk -> cap default ----------
+  ukuranProdukSelect.addEventListener("change", function () {
+    if (ukuranProdukSelect.value === "biasa") {
+      capOngkirInput.value = "40.000";
+    } else {
+      capOngkirInput.value = "60.000";
+    }
+    recalculate();
+  });
+
+  // ---------- Biaya Platform expand/collapse ----------
+  var rowPlatform = document.getElementById("rowPlatform");
+  var platformSub = document.getElementById("platformSub");
+  var platformArrow = document.getElementById("platformArrow");
+  rowPlatform.addEventListener("click", function () {
+    platformSub.classList.toggle("open");
+    platformArrow.classList.toggle("open");
+  });
+  // default open
+  platformSub.classList.add("open");
+  platformArrow.classList.add("open");
+
+  // ---------- Core calculation ----------
+  function recalculate() {
+    var modal = parseNumber(modalInput.value);
+
+    if (modalInput.value.trim() === "" || isNaN(modal)) {
+      modalError.style.display = "block";
+      resultCard.style.display = "none";
+      return;
+    }
+    modalError.style.display = "none";
+
+    // Read settings (fall back to defaults if invalid/empty)
+    var persenAdmin = parsePercent(persenAdminInput.value);
+    if (isNaN(persenAdmin)) persenAdmin = 8.25;
+
+    var biayaProses = parseNumber(biayaProsesInput.value);
+    if (isNaN(biayaProses)) biayaProses = 1250;
+
+    var persenOngkir = parsePercent(persenOngkirInput.value);
+    if (isNaN(persenOngkir)) persenOngkir = 4.5;
+
+    var biayaLayanan = parseNumber(biayaLayananInput.value);
+    if (isNaN(biayaLayanan)) biayaLayanan = 0;
+
+    var capOngkir = parseNumber(capOngkirInput.value);
+    if (isNaN(capOngkir)) capOngkir = 40000;
+
+    var diskonProduk = parseNumber(diskonProdukInput.value);
+    if (isNaN(diskonProduk)) diskonProduk = 0;
+
+    var voucherDiskon = parseNumber(voucherDiskonInput.value);
+    if (isNaN(voucherDiskon)) voucherDiskon = 0;
+
+    var hj; // Harga Jual
+    var persenUntung = null;
+
+    if (mode === "A") {
+      hj = parseNumber(hargaJualInput.value);
+      if (hargaJualInput.value.trim() === "" || isNaN(hj)) {
+        resultCard.style.display = "none";
+        return;
+      }
+    } else {
+      persenUntung = parseNumber(persenUntungInput.value);
+      if (persenUntungInput.value.trim() === "" || isNaN(persenUntung)) {
+        resultCard.style.display = "none";
+        return;
+      }
+      // Rumus mundur (asumsi Diskon & Voucher = 0)
+      var totalPersen = (persenAdmin + persenOngkir) / 100;
+      var flatFees = biayaProses + biayaLayanan;
+      var persenDecimal = persenUntung / 100;
+      hj = (modal * (1 + persenDecimal) + flatFees) / (1 - totalPersen);
+    }
+
+    // ---------- Rumus umum (dipakai untuk Mode A & hasil hitung mundur Mode B) ----------
+    var dasarPerhitungan = hj - diskonProduk - voucherDiskon;
+
+    var biayaAdministrasi = dasarPerhitungan * (persenAdmin / 100);
+    var biayaProsesPesanan = biayaProses;
+    var biayaPlatform = biayaAdministrasi + biayaProsesPesanan;
+
+    var biayaOngkirRaw = dasarPerhitungan * (persenOngkir / 100);
+    var biayaOngkirXtra = Math.min(biayaOngkirRaw, capOngkir);
+    var biayaLayananTambahan = biayaLayanan;
+
+    var totalPotongan = biayaPlatform + biayaOngkirXtra + biayaLayananTambahan;
+
+    var estimasiTotalPenghasilan = dasarPerhitungan - totalPotongan;
+    var profit = estimasiTotalPenghasilan - modal;
+
+    renderResult({
+      mode: mode,
+      persenUntung: persenUntung,
+      hj: hj,
+      diskonProduk: diskonProduk,
+      voucherDiskon: voucherDiskon,
+      dasarPerhitungan: dasarPerhitungan,
+      persenAdmin: persenAdmin,
+      biayaAdministrasi: biayaAdministrasi,
+      biayaProsesPesanan: biayaProsesPesanan,
+      biayaPlatform: biayaPlatform,
+      persenOngkir: persenOngkir,
+      biayaOngkirXtra: biayaOngkirXtra,
+      biayaLayananTambahan: biayaLayananTambahan,
+      estimasiTotalPenghasilan: estimasiTotalPenghasilan,
+      modal: modal,
+      profit: profit
+    });
+  }
+
+  function renderResult(r) {
+    resultCard.style.display = "block";
+
+    var rowPersenUntung = document.getElementById("rowPersenUntung");
+    var labelHargaJual = document.getElementById("labelHargaJual");
+    if (r.mode === "B") {
+      rowPersenUntung.style.display = "flex";
+      document.getElementById("valPersenUntung").textContent = formatPlain(r.persenUntung) + "%";
+      labelHargaJual.textContent = "Harga Pasang Shopee (hasil hitung)";
+      document.getElementById("modeNote").style.display = (r.diskonProduk > 0 || r.voucherDiskon > 0) ? "block" : "none";
+    } else {
+      rowPersenUntung.style.display = "none";
+      labelHargaJual.textContent = "Harga Jual";
+      document.getElementById("modeNote").style.display = "none";
+    }
+
+    document.getElementById("valHargaJual").textContent = formatPlain(r.hj);
+
+    var rowDiskon = document.getElementById("rowDiskon");
+    var rowVoucher = document.getElementById("rowVoucher");
+    var rowDasar = document.getElementById("rowDasar");
+
+    var showDiskon = r.diskonProduk !== 0;
+    var showVoucher = r.voucherDiskon !== 0;
+
+    rowDiskon.style.display = showDiskon ? "flex" : "none";
+    if (showDiskon) document.getElementById("valDiskon").textContent = formatPlain(r.diskonProduk);
+
+    rowVoucher.style.display = showVoucher ? "flex" : "none";
+    if (showVoucher) document.getElementById("valVoucher").textContent = formatPlain(r.voucherDiskon);
+
+    var showDasar = showDiskon || showVoucher;
+    rowDasar.style.display = showDasar ? "flex" : "none";
+    if (showDasar) document.getElementById("valDasar").textContent = formatPlain(r.dasarPerhitungan);
+
+    document.getElementById("labelAdmin").textContent =
+      "Biaya Administrasi (" + formatPercent(r.persenAdmin) + "%)";
+    document.getElementById("valAdmin").textContent = "-" + formatRupiah(r.biayaAdministrasi);
+    document.getElementById("valProses").textContent = "-" + formatRupiah(r.biayaProsesPesanan);
+    document.getElementById("valPlatform").textContent = "-" + formatRupiah(r.biayaPlatform);
+
+    document.getElementById("labelOngkir").textContent =
+      "Admin " + formatPercent(r.persenOngkir) + "% / Biaya Gratis Ongkir XTRA";
+    document.getElementById("valOngkir").textContent = "-" + formatRupiah(r.biayaOngkirXtra);
+
+    document.getElementById("valLayanan").textContent =
+      (r.biayaLayananTambahan === 0 ? formatPlain(0) : "-" + formatRupiah(r.biayaLayananTambahan));
+
+    document.getElementById("valTotalPenghasilan").textContent = formatRupiah(r.estimasiTotalPenghasilan);
+
+    document.getElementById("valModal").textContent = formatPlain(r.modal);
+
+    var profitEl = document.getElementById("valProfit");
+    profitEl.textContent = (r.profit < 0 ? "-" : "") + formatRupiah(Math.abs(r.profit)).replace("Rp", "Rp");
+    profitEl.textContent = formatRupiah(r.profit);
+    profitEl.classList.remove("positive", "negative");
+    profitEl.classList.add(r.profit >= 0 ? "positive" : "negative");
+  }
+
+  function formatPercent(n) {
+    // display Indonesian-style decimal with comma, trim trailing zeros
+    var s = n.toString().replace(".", ",");
+    return s;
+  }
+
+  // Recalculate on any settings field change (in case formatting listeners miss selects)
+  [ukuranProdukSelect].forEach(function (el) {
+    el.addEventListener("change", recalculate);
+  });
+
+  recalculate();
+})();
+</script>
+</body>
+</html>
