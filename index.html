@@ -86,9 +86,17 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
-    padding: 0 12px calc(env(safe-area-inset-bottom, 0px) + 28px);
+    padding: 4px 12px calc(env(safe-area-inset-bottom, 0px) + 28px);
     -webkit-font-smoothing: antialiased;
     transition: background 0.25s ease, color 0.25s ease;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ffb199, var(--orange) 35%, var(--orange-dark) 65%, #ff8a5c);
+    z-index: 10;
   }
 
   .wrap {
@@ -98,33 +106,52 @@
 
   /* Header */
   .app-header {
-    padding: 22px 4px 16px;
+    padding: 26px 4px 18px;
     text-align: center;
   }
-  .app-header .badge {
+  .app-header .eyebrow {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    background: linear-gradient(145deg, var(--orange), var(--orange-dark));
-    font-size: 22px;
-    margin-bottom: 10px;
-    box-shadow: 0 8px 20px -8px hsla(var(--shadow-color) / 0.55);
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--orange);
+    background: var(--orange-light);
+    padding: 5px 11px 5px 9px;
+    border-radius: 999px;
+    margin-bottom: 12px;
   }
   h1 {
-    font-size: 19px;
+    font-size: 25px;
     font-weight: 800;
-    letter-spacing: 0.3px;
+    letter-spacing: -0.3px;
     margin: 0;
     color: var(--text);
+    line-height: 1.15;
+  }
+  h1 .accent {
+    color: var(--orange);
+    position: relative;
+    white-space: nowrap;
+  }
+  h1 .accent svg {
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 100%;
+    height: 8px;
   }
   .app-header .sub {
-    font-size: 12.5px;
+    font-size: 13px;
     color: var(--muted);
-    margin-top: 4px;
+    margin-top: 8px;
     font-weight: 500;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.45;
   }
 
   .card {
@@ -142,6 +169,30 @@
     text-transform: uppercase;
     color: var(--muted);
     margin: 0 0 12px;
+  }
+  .card-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+  .card-eyebrow .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .card-eyebrow .step-text {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
   }
 
   label {
@@ -475,6 +526,95 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Receipt-style result card */
+  .receipt {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 22px 20px 18px;
+    margin: 14px -2px 22px;
+    box-shadow: 0 1px 2px hsla(var(--shadow-color) / 0.04), 0 14px 32px -20px hsla(var(--shadow-color) / 0.45);
+  }
+  .receipt::before,
+  .receipt::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 11px;
+    background:
+      linear-gradient(135deg, var(--bg) 50%, transparent 50%) 0 0 / 16px 16px repeat-x,
+      linear-gradient(-135deg, var(--bg) 50%, transparent 50%) 0 0 / 16px 16px repeat-x;
+  }
+  .receipt::before { top: -1px; }
+  .receipt::after { bottom: -1px; transform: scaleY(-1); }
+
+  .receipt-head {
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .receipt-head .title {
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .receipt-head .meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+    font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+  }
+  .receipt .result-row .value {
+    font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+    font-size: 13.5px;
+    letter-spacing: -0.2px;
+  }
+  .receipt .total-row .value,
+  .receipt .profit-row .value {
+    font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+  }
+
+  .profit-row .trend {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 11px;
+    margin-right: 2px;
+  }
+  .profit-row.is-positive .trend { background: var(--green); color: #fff; }
+  .profit-row.is-negative .trend { background: var(--red); color: #fff; }
+
+  .receipt-barcode {
+    margin: 18px auto 2px;
+    height: 30px;
+    max-width: 220px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--text) 0px, var(--text) 1.5px,
+      transparent 1.5px, transparent 3px,
+      var(--text) 3px, var(--text) 4px,
+      transparent 4px, transparent 7px,
+      var(--text) 7px, var(--text) 9px,
+      transparent 9px, transparent 10px
+    );
+    opacity: 0.55;
+  }
+  .receipt-thanks {
+    text-align: center;
+    font-size: 10.5px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
   .subgroup {
     display: none;
   }
@@ -493,12 +633,13 @@
 <body>
 <div class="wrap">
   <div class="app-header">
-    <div class="badge">🛒</div>
-    <h1>KALKULATOR SHOPEE</h1>
-    <div class="sub">Hitung estimasi penghasilan & profit bersih jualan Anda</div>
+    <span class="eyebrow">🧾 Seller Tools</span>
+    <h1>Kalkulator Profit<br><span class="accent">Shopee<svg viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path d="M0 5 Q 25 0, 50 4 T 100 3" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span></h1>
+    <div class="sub">Isi harga modal &amp; harga jual, langsung lihat estimasi penghasilan dan profit bersih ala struk checkout Shopee.</div>
   </div>
 
   <div class="card">
+    <div class="card-eyebrow"><span class="step-num">1</span><span class="step-text">Modal &amp; Harga Jual</span></div>
     <div class="field">
       <label for="modal">Harga Modal</label>
       <div class="input-shell has-prefix">
@@ -532,8 +673,9 @@
   </div>
 
   <div class="card">
+    <div class="card-eyebrow"><span class="step-num">2</span><span class="step-text">Pengaturan Biaya</span></div>
     <div class="settings-toggle" id="settingsToggle">
-      <span>⚙️&nbsp; Pengaturan Biaya</span>
+      <span>⚙️&nbsp; Sesuaikan Persentase &amp; Biaya</span>
       <span class="chev">▼</span>
     </div>
     <div class="settings-body" id="settingsBody"><div>
@@ -603,8 +745,12 @@
     </div></div>
   </div>
 
-  <div class="card" id="resultCard">
-    <p class="card-title">Rincian Perhitungan</p>
+  <div class="receipt" id="resultCard">
+    <div class="receipt-head">
+      <div class="title">Struk Estimasi Shopee</div>
+      <div class="meta" id="receiptMeta"></div>
+    </div>
+    <hr class="hr">
     <div class="result-row" id="rowPersenUntung" style="display:none;">
       <span class="label">% Keuntungan</span>
       <span class="value" id="valPersenUntung"></span>
@@ -667,13 +813,16 @@
       <span class="value" id="valModal"></span>
     </div>
     <div class="result-row profit-row" id="profitRow">
-      <span class="label">Profit Bersih</span>
+      <span class="label"><span class="trend" id="profitTrend">▲</span>Profit Bersih</span>
       <span class="value" id="valProfit"></span>
     </div>
 
     <div class="note" id="modeNote" style="display:none;">
       💡 Catatan: hasil hitung mundur Mode B mengasumsikan Diskon Produk & Voucher = 0. Jika Anda mengisi Diskon/Voucher di Pengaturan, angka Harga Jual di atas hanya estimasi tanpa memperhitungkan diskon tersebut.
     </div>
+
+    <div class="receipt-barcode"></div>
+    <div class="receipt-thanks">Estimasi — Bukan Nota Resmi Shopee</div>
   </div>
 
   <div class="footer-note">Estimasi biaya bisa berbeda dari nominal aktual di Shopee Seller Centre.</div>
@@ -977,6 +1126,15 @@
     var profitRow = document.getElementById("profitRow");
     profitRow.classList.remove("is-positive", "is-negative");
     profitRow.classList.add(r.profit >= 0 ? "is-positive" : "is-negative");
+
+    document.getElementById("profitTrend").textContent = r.profit >= 0 ? "▲" : "▼";
+
+    var meta = document.getElementById("receiptMeta");
+    var now = new Date();
+    var bulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+    var jam = String(now.getHours()).padStart(2, "0");
+    var menit = String(now.getMinutes()).padStart(2, "0");
+    meta.textContent = now.getDate() + " " + bulan[now.getMonth()] + " " + now.getFullYear() + " · " + jam + ":" + menit;
   }
 
   function formatPercent(n) {
