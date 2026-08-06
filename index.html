@@ -252,6 +252,25 @@
     border-color: var(--red);
   }
 
+  .checkbox-field { margin-bottom: 13px; }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--orange);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
   .field { margin-bottom: 13px; }
   .field:last-child { margin-bottom: 0; }
   .hint {
@@ -712,27 +731,41 @@
 
       <div id="feeFieldsTiktok" style="display:none;">
         <div class="field">
-          <label for="persenKomisi">Biaya Komisi Dinamis</label>
+          <label for="persenKomisi">Biaya Komisi (kategori)</label>
           <div class="input-shell has-suffix">
-            <input type="text" inputmode="decimal" id="persenKomisi" value="8">
+            <input type="text" inputmode="decimal" id="persenKomisi" value="9.25">
             <span class="suffix">%</span>
           </div>
-          <div class="hint">Tarif berkisar 1%–10% tergantung kategori produk — cek angka pasti toko Anda di TikTok Shop Seller Center.</div>
+          <div class="hint">Tarif kategori bervariasi — cek angka pasti toko Anda di TikTok Shop Seller Center.</div>
         </div>
         <div class="field">
-          <label for="biayaProsesTiktok">Biaya Proses Transaksi</label>
+          <label for="persenKomisiDinamis">Komisi Dinamis</label>
+          <div class="input-shell has-suffix">
+            <input type="text" inputmode="decimal" id="persenKomisiDinamis" value="7">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="persenGrowthXtra">Biaya Layanan Program Growth Xtra</label>
+          <div class="input-shell has-suffix">
+            <input type="text" inputmode="decimal" id="persenGrowthXtra" value="3">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="biayaProsesTiktok">Biaya Pemrosesan Pesanan</label>
           <div class="input-shell has-prefix">
             <span class="prefix">Rp</span>
             <input type="text" inputmode="numeric" id="biayaProsesTiktok" value="1.250">
           </div>
         </div>
         <div class="field">
-          <label for="biayaLayananTiktok">Biaya Layanan Tambahan</label>
+          <label for="biayaLayananTiktok">Biaya Layanan Tambahan (ongkir/lainnya)</label>
           <div class="input-shell has-prefix">
             <span class="prefix">Rp</span>
             <input type="text" inputmode="numeric" id="biayaLayananTiktok" value="0">
           </div>
-          <div class="hint">Termasuk biaya layanan logistik (berlaku sejak Mei 2026) kalau ada — isi manual sesuai Seller Center Anda karena persentasenya belum bisa kami pastikan.</div>
+          <div class="hint">Untuk perkiraan ongkir atau biaya lain yang tidak masuk kategori di atas — isi manual kalau ada.</div>
         </div>
       </div>
 
@@ -774,12 +807,27 @@
 
         <div id="advancedTiktok" style="display:none;">
           <div class="field">
-            <label for="capKomisi">Batas Maksimal Biaya Komisi (Cap)</label>
+            <label for="persenDiskonKomisi">Diskon Komisi Platform (dari belanja iklan)</label>
+            <div class="input-shell has-suffix">
+              <input type="text" inputmode="decimal" id="persenDiskonKomisi" value="0">
+              <span class="suffix">%</span>
+            </div>
+            <div class="hint">Diskon dari belanja iklan pada pesanan yang memenuhi syarat, % dari Biaya Komisi kategori. Default 0 (nyalakan/isi kalau toko Anda dapat diskon ini) — cek nominal aktualnya di Seller Center.</div>
+          </div>
+          <div class="field">
+            <label for="capKomisiDinamis">Batas Maksimal Komisi Dinamis (Cap)</label>
             <div class="input-shell has-prefix">
               <span class="prefix">Rp</span>
-              <input type="text" inputmode="numeric" id="capKomisi" value="650.000">
+              <input type="text" inputmode="numeric" id="capKomisiDinamis" value="650.000">
             </div>
             <div class="hint">Cap resmi per 18 Mei 2026 adalah Rp650.000/produk (naik dari sebelumnya Rp40.000).</div>
+          </div>
+          <div class="field checkbox-field">
+            <label class="checkbox-label">
+              <input type="checkbox" id="pphAktif">
+              <span>Kena PPh Pasal 22 (0,5%)</span>
+            </label>
+            <div class="hint">Kondisional tergantung status pajak toko — nyalakan kalau akun Anda dipotong PPh Pasal 22 di Seller Center.</div>
           </div>
           <div class="field">
             <label for="diskonProdukTiktok">Diskon Produk (ditanggung Penjual)</label>
@@ -829,24 +877,63 @@
 
     <hr class="hr">
 
-    <div class="result-row bold clickable" id="rowPlatform">
-      <span class="label">Biaya Platform <span class="arrow-icon" id="platformArrow">▼</span></span>
-      <span class="value" id="valPlatform"></span>
-    </div>
-    <div class="subgroup" id="platformSubRows">
-      <div class="result-row sub">
-        <span class="label" id="labelAdmin">Biaya Administrasi (8,25%)</span>
-        <span class="value" id="valAdmin"></span>
+    <div id="breakdownShopee">
+      <div class="result-row bold clickable" id="rowPlatform">
+        <span class="label">Biaya Platform <span class="arrow-icon" id="platformArrow">▼</span></span>
+        <span class="value" id="valPlatform"></span>
       </div>
-      <div class="result-row sub">
-        <span class="label" id="labelProses">Biaya Proses Pesanan</span>
-        <span class="value" id="valProses"></span>
+      <div class="subgroup" id="platformSubRows">
+        <div class="result-row sub">
+          <span class="label">Biaya Administrasi (<span id="labelAdminPct"></span>%)</span>
+          <span class="value" id="valAdmin"></span>
+        </div>
+        <div class="result-row sub">
+          <span class="label">Biaya Proses Pesanan</span>
+          <span class="value" id="valProses"></span>
+        </div>
+      </div>
+
+      <div class="result-row bold">
+        <span class="label" id="labelOngkir">Admin 4,5% / Biaya Gratis Ongkir XTRA</span>
+        <span class="value" id="valOngkir"></span>
       </div>
     </div>
 
-    <div class="result-row bold" id="rowOngkirXtra">
-      <span class="label" id="labelOngkir">Admin 4,5% / Biaya Gratis Ongkir XTRA</span>
-      <span class="value" id="valOngkir"></span>
+    <div id="breakdownTiktok" style="display:none;">
+      <div class="result-row bold clickable" id="rowKomisiPlatform">
+        <span class="label">Estimasi Komisi Platform <span class="arrow-icon" id="komisiPlatformArrow">▼</span></span>
+        <span class="value" id="valKomisiPlatformNet"></span>
+      </div>
+      <div class="subgroup" id="komisiPlatformSubRows">
+        <div class="result-row sub">
+          <span class="label">Biaya Komisi (<span id="labelKomisiPct"></span>%)</span>
+          <span class="value" id="valKomisiSebelumDiskon"></span>
+        </div>
+        <div class="result-row sub" id="rowDiskonKomisi" style="display:none;">
+          <span class="label">Diskon Komisi Platform</span>
+          <span class="value" id="valDiskonKomisi"></span>
+        </div>
+      </div>
+
+      <div class="result-row bold">
+        <span class="label">Komisi Dinamis (<span id="labelKomisiDinamisPct"></span>%)</span>
+        <span class="value" id="valKomisiDinamis"></span>
+      </div>
+
+      <div class="result-row bold">
+        <span class="label">Biaya Layanan Program Growth Xtra (<span id="labelGrowthXtraPct"></span>%)</span>
+        <span class="value" id="valGrowthXtra"></span>
+      </div>
+
+      <div class="result-row">
+        <span class="label">Biaya Pemrosesan Pesanan</span>
+        <span class="value" id="valProsesTiktok"></span>
+      </div>
+
+      <div class="result-row" id="rowPph" style="display:none;">
+        <span class="label">PPh Pasal 22 (0,5%)</span>
+        <span class="value" id="valPph"></span>
+      </div>
     </div>
 
     <div class="result-row">
@@ -955,11 +1042,15 @@
   var voucherDiskonInput = document.getElementById("voucherDiskon");
 
   var persenKomisiInput = document.getElementById("persenKomisi");
+  var persenKomisiDinamisInput = document.getElementById("persenKomisiDinamis");
+  var persenGrowthXtraInput = document.getElementById("persenGrowthXtra");
+  var persenDiskonKomisiInput = document.getElementById("persenDiskonKomisi");
   var biayaProsesTiktokInput = document.getElementById("biayaProsesTiktok");
   var biayaLayananTiktokInput = document.getElementById("biayaLayananTiktok");
-  var capKomisiInput = document.getElementById("capKomisi");
+  var capKomisiDinamisInput = document.getElementById("capKomisiDinamis");
   var diskonProdukTiktokInput = document.getElementById("diskonProdukTiktok");
   var voucherTiktokInput = document.getElementById("voucherTiktok");
+  var pphAktifInput = document.getElementById("pphAktif");
 
   var modalError = document.getElementById("modalError");
   var resultCard = document.getElementById("resultCard");
@@ -983,10 +1074,14 @@
 
   attachIntegerFormatting(biayaProsesTiktokInput);
   attachIntegerFormatting(biayaLayananTiktokInput);
-  attachIntegerFormatting(capKomisiInput);
+  attachIntegerFormatting(capKomisiDinamisInput);
   attachIntegerFormatting(diskonProdukTiktokInput);
   attachIntegerFormatting(voucherTiktokInput);
   attachDecimalFormatting(persenKomisiInput);
+  attachDecimalFormatting(persenKomisiDinamisInput);
+  attachDecimalFormatting(persenGrowthXtraInput);
+  attachDecimalFormatting(persenDiskonKomisiInput);
+  pphAktifInput.addEventListener("change", recalculate);
 
   // ---------- Platform switcher ----------
   var PLATFORM_LABEL = { shopee: "Shopee", tiktok: "TikTok Shop" };
@@ -995,6 +1090,8 @@
   var feeFieldsTiktok = document.getElementById("feeFieldsTiktok");
   var advancedShopee = document.getElementById("advancedShopee");
   var advancedTiktok = document.getElementById("advancedTiktok");
+  var breakdownShopee = document.getElementById("breakdownShopee");
+  var breakdownTiktok = document.getElementById("breakdownTiktok");
 
   platformTabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
@@ -1007,6 +1104,8 @@
       feeFieldsTiktok.style.display = platform === "tiktok" ? "" : "none";
       advancedShopee.style.display = platform === "shopee" ? "" : "none";
       advancedTiktok.style.display = platform === "tiktok" ? "" : "none";
+      breakdownShopee.style.display = platform === "shopee" ? "" : "none";
+      breakdownTiktok.style.display = platform === "tiktok" ? "" : "none";
 
       var label = PLATFORM_LABEL[platform];
       document.getElementById("platformWord").textContent = label;
@@ -1079,6 +1178,16 @@
   platformSubRows.classList.add("open");
   platformArrow.classList.add("open");
 
+  var rowKomisiPlatform = document.getElementById("rowKomisiPlatform");
+  var komisiPlatformSubRows = document.getElementById("komisiPlatformSubRows");
+  var komisiPlatformArrow = document.getElementById("komisiPlatformArrow");
+  rowKomisiPlatform.addEventListener("click", function () {
+    komisiPlatformSubRows.classList.toggle("open");
+    komisiPlatformArrow.classList.toggle("open");
+  });
+  komisiPlatformSubRows.classList.add("open");
+  komisiPlatformArrow.classList.add("open");
+
   // ---------- Core calculation ----------
   function recalculate() {
     var modal = parseNumber(modalInput.value);
@@ -1092,57 +1201,34 @@
     modalError.style.display = "none";
     modalInput.classList.remove("invalid");
 
-    // Read settings per platform (fall back to defaults if invalid/empty)
-    var persenAdmin, biayaProses, persenOngkir, biayaLayanan, capOngkir, diskonProduk, voucherDiskon, hasOngkirFee;
-
     if (platform === "shopee") {
-      persenAdmin = parsePercent(persenAdminInput.value);
-      if (isNaN(persenAdmin)) persenAdmin = 8.25;
-
-      biayaProses = parseNumber(biayaProsesInput.value);
-      if (isNaN(biayaProses)) biayaProses = 1250;
-
-      persenOngkir = parsePercent(persenOngkirInput.value);
-      if (isNaN(persenOngkir)) persenOngkir = 4.5;
-
-      biayaLayanan = parseNumber(biayaLayananInput.value);
-      if (isNaN(biayaLayanan)) biayaLayanan = 0;
-
-      capOngkir = parseNumber(capOngkirInput.value);
-      if (isNaN(capOngkir)) capOngkir = 40000;
-
-      diskonProduk = parseNumber(diskonProdukInput.value);
-      if (isNaN(diskonProduk)) diskonProduk = 0;
-
-      voucherDiskon = parseNumber(voucherDiskonInput.value);
-      if (isNaN(voucherDiskon)) voucherDiskon = 0;
-
-      hasOngkirFee = true;
+      recalculateShopee(modal);
     } else {
-      persenAdmin = parsePercent(persenKomisiInput.value);
-      if (isNaN(persenAdmin)) persenAdmin = 8;
-
-      biayaProses = parseNumber(biayaProsesTiktokInput.value);
-      if (isNaN(biayaProses)) biayaProses = 1250;
-
-      persenOngkir = 0;
-
-      biayaLayanan = parseNumber(biayaLayananTiktokInput.value);
-      if (isNaN(biayaLayanan)) biayaLayanan = 0;
-
-      capOngkir = 0;
-
-      diskonProduk = parseNumber(diskonProdukTiktokInput.value);
-      if (isNaN(diskonProduk)) diskonProduk = 0;
-
-      voucherDiskon = parseNumber(voucherTiktokInput.value);
-      if (isNaN(voucherDiskon)) voucherDiskon = 0;
-
-      hasOngkirFee = false;
+      recalculateTiktok(modal);
     }
+  }
 
-    var capKomisi = parseNumber(capKomisiInput.value);
-    if (isNaN(capKomisi)) capKomisi = 650000;
+  function recalculateShopee(modal) {
+    var persenAdmin = parsePercent(persenAdminInput.value);
+    if (isNaN(persenAdmin)) persenAdmin = 8.25;
+
+    var biayaProses = parseNumber(biayaProsesInput.value);
+    if (isNaN(biayaProses)) biayaProses = 1250;
+
+    var persenOngkir = parsePercent(persenOngkirInput.value);
+    if (isNaN(persenOngkir)) persenOngkir = 4.5;
+
+    var biayaLayanan = parseNumber(biayaLayananInput.value);
+    if (isNaN(biayaLayanan)) biayaLayanan = 0;
+
+    var capOngkir = parseNumber(capOngkirInput.value);
+    if (isNaN(capOngkir)) capOngkir = 40000;
+
+    var diskonProduk = parseNumber(diskonProdukInput.value);
+    if (isNaN(diskonProduk)) diskonProduk = 0;
+
+    var voucherDiskon = parseNumber(voucherDiskonInput.value);
+    if (isNaN(voucherDiskon)) voucherDiskon = 0;
 
     var hj; // Harga Jual
     var persenUntung = null;
@@ -1162,35 +1248,25 @@
       // Rumus mundur (asumsi Diskon & Voucher = 0)
       var totalPersen = (persenAdmin + persenOngkir) / 100;
       var flatFees = biayaProses + biayaLayanan;
-      var persenDecimal = persenUntung / 100;
-      hj = (modal * (1 + persenDecimal) + flatFees) / (1 - totalPersen);
+      hj = (modal * (1 + persenUntung / 100) + flatFees) / (1 - totalPersen);
     }
 
-    // ---------- Rumus umum (dipakai untuk Mode A & hasil hitung mundur Mode B) ----------
     var dasarPerhitungan = hj - diskonProduk - voucherDiskon;
 
-    // Shopee: Biaya Administrasi. TikTok: Biaya Komisi Dinamis (dibatasi cap per produk).
-    var biayaAdministrasiRaw = dasarPerhitungan * (persenAdmin / 100);
-    var biayaAdministrasi = platform === "shopee" ? biayaAdministrasiRaw : Math.min(biayaAdministrasiRaw, capKomisi);
+    var biayaAdministrasi = dasarPerhitungan * (persenAdmin / 100);
     var biayaProsesPesanan = biayaProses;
     var biayaPlatform = biayaAdministrasi + biayaProsesPesanan;
 
-    var biayaOngkirXtra = 0;
-    if (hasOngkirFee) {
-      var biayaOngkirRaw = dasarPerhitungan * (persenOngkir / 100);
-      biayaOngkirXtra = Math.min(biayaOngkirRaw, capOngkir);
-    }
+    var biayaOngkirXtra = Math.min(dasarPerhitungan * (persenOngkir / 100), capOngkir);
     var biayaLayananTambahan = biayaLayanan;
 
     var totalPotongan = biayaPlatform + biayaOngkirXtra + biayaLayananTambahan;
-
     var estimasiTotalPenghasilan = dasarPerhitungan - totalPotongan;
     var profit = estimasiTotalPenghasilan - modal;
 
     renderResult({
       mode: mode,
-      platform: platform,
-      hasOngkirFee: hasOngkirFee,
+      platform: "shopee",
       persenUntung: persenUntung,
       hj: hj,
       diskonProduk: diskonProduk,
@@ -1202,6 +1278,101 @@
       biayaPlatform: biayaPlatform,
       persenOngkir: persenOngkir,
       biayaOngkirXtra: biayaOngkirXtra,
+      biayaLayananTambahan: biayaLayananTambahan,
+      estimasiTotalPenghasilan: estimasiTotalPenghasilan,
+      modal: modal,
+      profit: profit
+    });
+  }
+
+  function recalculateTiktok(modal) {
+    var persenKomisi = parsePercent(persenKomisiInput.value);
+    if (isNaN(persenKomisi)) persenKomisi = 9.25;
+
+    var persenKomisiDinamis = parsePercent(persenKomisiDinamisInput.value);
+    if (isNaN(persenKomisiDinamis)) persenKomisiDinamis = 7;
+
+    var persenGrowthXtra = parsePercent(persenGrowthXtraInput.value);
+    if (isNaN(persenGrowthXtra)) persenGrowthXtra = 3;
+
+    var persenDiskonKomisi = parsePercent(persenDiskonKomisiInput.value);
+    if (isNaN(persenDiskonKomisi)) persenDiskonKomisi = 0;
+
+    var biayaProses = parseNumber(biayaProsesTiktokInput.value);
+    if (isNaN(biayaProses)) biayaProses = 1250;
+
+    var biayaLayanan = parseNumber(biayaLayananTiktokInput.value);
+    if (isNaN(biayaLayanan)) biayaLayanan = 0;
+
+    var capKomisiDinamis = parseNumber(capKomisiDinamisInput.value);
+    if (isNaN(capKomisiDinamis)) capKomisiDinamis = 650000;
+
+    var diskonProduk = parseNumber(diskonProdukTiktokInput.value);
+    if (isNaN(diskonProduk)) diskonProduk = 0;
+
+    var voucherDiskon = parseNumber(voucherTiktokInput.value);
+    if (isNaN(voucherDiskon)) voucherDiskon = 0;
+
+    var pphAktif = pphAktifInput.checked;
+    var persenPph = pphAktif ? 0.5 : 0;
+
+    var hj; // Harga Jual
+    var persenUntung = null;
+
+    if (mode === "A") {
+      hj = parseNumber(hargaJualInput.value);
+      if (hargaJualInput.value.trim() === "" || isNaN(hj)) {
+        resultCard.style.display = "none";
+        return;
+      }
+    } else {
+      persenUntung = parseNumber(persenUntungInput.value);
+      if (persenUntungInput.value.trim() === "" || isNaN(persenUntung)) {
+        resultCard.style.display = "none";
+        return;
+      }
+      // Rumus mundur (asumsi Diskon & Voucher = 0, cap komisi dinamis diabaikan)
+      var persenKomisiNet = persenKomisi * (1 - persenDiskonKomisi / 100);
+      var totalPersen = (persenKomisiNet + persenKomisiDinamis + persenGrowthXtra + persenPph) / 100;
+      var flatFees = biayaProses + biayaLayanan;
+      hj = (modal * (1 + persenUntung / 100) + flatFees) / (1 - totalPersen);
+    }
+
+    var dasarPerhitungan = hj - diskonProduk - voucherDiskon;
+
+    var biayaKomisiSebelumDiskon = dasarPerhitungan * (persenKomisi / 100);
+    var diskonKomisiPlatform = biayaKomisiSebelumDiskon * (persenDiskonKomisi / 100);
+    var biayaKomisiNet = biayaKomisiSebelumDiskon - diskonKomisiPlatform;
+
+    var biayaKomisiDinamis = Math.min(dasarPerhitungan * (persenKomisiDinamis / 100), capKomisiDinamis);
+    var biayaGrowthXtra = dasarPerhitungan * (persenGrowthXtra / 100);
+    var biayaProsesPesanan = biayaProses;
+    var biayaPph = dasarPerhitungan * (persenPph / 100);
+    var biayaLayananTambahan = biayaLayanan;
+
+    var totalPotongan = biayaKomisiNet + biayaKomisiDinamis + biayaGrowthXtra + biayaProsesPesanan + biayaPph + biayaLayananTambahan;
+    var estimasiTotalPenghasilan = dasarPerhitungan - totalPotongan;
+    var profit = estimasiTotalPenghasilan - modal;
+
+    renderResult({
+      mode: mode,
+      platform: "tiktok",
+      persenUntung: persenUntung,
+      hj: hj,
+      diskonProduk: diskonProduk,
+      voucherDiskon: voucherDiskon,
+      dasarPerhitungan: dasarPerhitungan,
+      persenKomisi: persenKomisi,
+      biayaKomisiSebelumDiskon: biayaKomisiSebelumDiskon,
+      diskonKomisiPlatform: diskonKomisiPlatform,
+      biayaKomisiNet: biayaKomisiNet,
+      persenKomisiDinamis: persenKomisiDinamis,
+      biayaKomisiDinamis: biayaKomisiDinamis,
+      persenGrowthXtra: persenGrowthXtra,
+      biayaGrowthXtra: biayaGrowthXtra,
+      biayaProsesPesanan: biayaProsesPesanan,
+      pphAktif: pphAktif,
+      biayaPph: biayaPph,
       biayaLayananTambahan: biayaLayananTambahan,
       estimasiTotalPenghasilan: estimasiTotalPenghasilan,
       modal: modal,
@@ -1245,26 +1416,41 @@
     if (showDasar) document.getElementById("valDasar").textContent = formatPlain(r.dasarPerhitungan);
 
     if (r.platform === "shopee") {
-      document.getElementById("labelAdmin").textContent =
-        "Biaya Administrasi (" + formatPercent(r.persenAdmin) + "%)";
-      document.getElementById("labelProses").textContent = "Biaya Proses Pesanan";
-    } else {
-      document.getElementById("labelAdmin").textContent =
-        "Biaya Komisi Dinamis (" + formatPercent(r.persenAdmin) + "%)";
-      document.getElementById("labelProses").textContent = "Biaya Proses Transaksi";
-    }
-    document.getElementById("valAdmin").textContent = "-" + formatRupiah(r.biayaAdministrasi);
-    document.getElementById("valProses").textContent = "-" + formatRupiah(r.biayaProsesPesanan);
-    document.getElementById("valPlatform").textContent = "-" + formatRupiah(r.biayaPlatform);
-
-    var rowOngkirXtra = document.getElementById("rowOngkirXtra");
-    if (r.hasOngkirFee) {
-      rowOngkirXtra.style.display = "flex";
+      document.getElementById("labelAdminPct").textContent = formatPercent(r.persenAdmin);
+      document.getElementById("valAdmin").textContent = "-" + formatRupiah(r.biayaAdministrasi);
+      document.getElementById("valProses").textContent = "-" + formatRupiah(r.biayaProsesPesanan);
+      document.getElementById("valPlatform").textContent = "-" + formatRupiah(r.biayaPlatform);
       document.getElementById("labelOngkir").textContent =
         "Admin " + formatPercent(r.persenOngkir) + "% / Biaya Gratis Ongkir XTRA";
       document.getElementById("valOngkir").textContent = "-" + formatRupiah(r.biayaOngkirXtra);
     } else {
-      rowOngkirXtra.style.display = "none";
+      document.getElementById("labelKomisiPct").textContent = formatPercent(r.persenKomisi);
+      document.getElementById("valKomisiSebelumDiskon").textContent = "-" + formatRupiah(r.biayaKomisiSebelumDiskon);
+      document.getElementById("valKomisiPlatformNet").textContent = "-" + formatRupiah(r.biayaKomisiNet);
+
+      var rowDiskonKomisi = document.getElementById("rowDiskonKomisi");
+      if (r.diskonKomisiPlatform > 0) {
+        rowDiskonKomisi.style.display = "flex";
+        document.getElementById("valDiskonKomisi").textContent = "+" + formatRupiah(r.diskonKomisiPlatform);
+      } else {
+        rowDiskonKomisi.style.display = "none";
+      }
+
+      document.getElementById("labelKomisiDinamisPct").textContent = formatPercent(r.persenKomisiDinamis);
+      document.getElementById("valKomisiDinamis").textContent = "-" + formatRupiah(r.biayaKomisiDinamis);
+
+      document.getElementById("labelGrowthXtraPct").textContent = formatPercent(r.persenGrowthXtra);
+      document.getElementById("valGrowthXtra").textContent = "-" + formatRupiah(r.biayaGrowthXtra);
+
+      document.getElementById("valProsesTiktok").textContent = "-" + formatRupiah(r.biayaProsesPesanan);
+
+      var rowPph = document.getElementById("rowPph");
+      if (r.pphAktif) {
+        rowPph.style.display = "flex";
+        document.getElementById("valPph").textContent = "-" + formatRupiah(r.biayaPph);
+      } else {
+        rowPph.style.display = "none";
+      }
     }
 
     document.getElementById("valLayanan").textContent =
