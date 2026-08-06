@@ -579,16 +579,27 @@
     font-size: 11px;
     color: var(--muted);
     margin-top: 3px;
-    font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
   }
   .receipt .result-row .value {
-    font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
-    font-size: 13.5px;
-    letter-spacing: -0.2px;
+    font-size: 14px;
   }
-  .receipt .total-row .value,
-  .receipt .profit-row .value {
-    font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+
+  .highlight-row {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 11px 14px;
+    margin: 2px -2px;
+  }
+  .highlight-row .label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .highlight-row .value {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
   }
 
   .profit-row .trend {
@@ -603,31 +614,6 @@
   }
   .profit-row.is-positive .trend { background: var(--green); color: #fff; }
   .profit-row.is-negative .trend { background: var(--red); color: #fff; }
-
-  .receipt-barcode {
-    margin: 18px auto 2px;
-    height: 30px;
-    max-width: 220px;
-    background-image: repeating-linear-gradient(
-      90deg,
-      var(--text) 0px, var(--text) 1.5px,
-      transparent 1.5px, transparent 3px,
-      var(--text) 3px, var(--text) 4px,
-      transparent 4px, transparent 7px,
-      var(--text) 7px, var(--text) 9px,
-      transparent 9px, transparent 10px
-    );
-    opacity: 0.55;
-  }
-  .receipt-thanks {
-    text-align: center;
-    font-size: 10.5px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: var(--muted);
-    margin-top: 6px;
-  }
 
   .subgroup {
     display: none;
@@ -850,7 +836,7 @@
 
   <div class="receipt" id="resultCard">
     <div class="receipt-head">
-      <div class="title" id="receiptTitle">Struk Estimasi Shopee</div>
+      <div class="title" id="receiptTitle">Harga Estimasi Shopee</div>
       <div class="meta" id="receiptMeta"></div>
     </div>
     <hr class="hr">
@@ -858,7 +844,7 @@
       <span class="label">% Keuntungan</span>
       <span class="value" id="valPersenUntung"></span>
     </div>
-    <div class="result-row">
+    <div class="result-row highlight-row">
       <span class="label" id="labelHargaJual">Harga Jual</span>
       <span class="value" id="valHargaJual"></span>
     </div>
@@ -963,8 +949,6 @@
       💡 Catatan: hasil hitung mundur Mode B mengasumsikan Diskon &amp; Voucher = 0. Jika Anda mengisinya di Pengaturan, angka Harga Jual di atas hanya estimasi tanpa memperhitungkan itu.
     </div>
 
-    <div class="receipt-barcode"></div>
-    <div class="receipt-thanks" id="receiptThanks">Estimasi — Bukan Nota Resmi Shopee</div>
   </div>
 
   <div class="footer-note" id="footerNote">Estimasi biaya bisa berbeda dari nominal aktual di Shopee Seller Centre.</div>
@@ -1112,8 +1096,7 @@
       document.getElementById("platformSub").textContent =
         "Isi harga modal & harga jual, langsung lihat estimasi penghasilan dan profit bersih ala struk checkout " + label + ".";
       document.getElementById("labelHargaJualInput").textContent = "Harga Pasang " + label;
-      document.getElementById("receiptTitle").textContent = "Struk Estimasi " + label;
-      document.getElementById("receiptThanks").textContent = "Estimasi — Bukan Nota Resmi " + label;
+      document.getElementById("receiptTitle").textContent = "Harga Estimasi " + label;
       document.getElementById("footerNote").textContent =
         "Estimasi biaya bisa berbeda dari nominal aktual di " + label + " Seller Centre.";
       document.getElementById("labelVoucher").textContent =
